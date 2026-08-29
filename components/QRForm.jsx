@@ -5,12 +5,43 @@ import QRCode from "qrcode";
 import { Download, Link2, FileImage } from "lucide-react";
 
 const FIELDS = [
-  { key: "name", label: "Cozy Yards", placeholder: "Cozy Yards", param: "name", required: true },
-  { key: "facebookUrl", label: "Facebook URL", placeholder: "https://facebook.com/yourpage", param: "fb" },
-  { key: "instagramUrl", label: "Instagram URL", placeholder: "https://instagram.com/yourpage", param: "ig" },
-  { key: "websiteUrl", label: "Website URL", placeholder: "https://yourbrand.com", param: "web" },
-  { key: "youtubeUrl", label: "YouTube URL", placeholder: "https://youtube.com/@yourchannel", param: "yt" },
-  { key: "whatsappNumber", label: "WhatsApp number (with country code)", placeholder: "+8801XXXXXXXXX", param: "wa" },
+  {
+    key: "name",
+    label: "Cozy Yards",
+    placeholder: "Cozy Yards",
+    param: "name",
+    required: true,
+  },
+  {
+    key: "facebookUrl",
+    label: "Facebook URL",
+    placeholder: "https://facebook.com/yourpage",
+    param: "fb",
+  },
+  {
+    key: "instagramUrl",
+    label: "Instagram URL",
+    placeholder: "https://instagram.com/yourpage",
+    param: "ig",
+  },
+  {
+    key: "websiteUrl",
+    label: "Website URL",
+    placeholder: "https://yourbrand.com",
+    param: "web",
+  },
+  {
+    key: "youtubeUrl",
+    label: "YouTube URL",
+    placeholder: "https://youtube.com/@yourchannel",
+    param: "yt",
+  },
+  {
+    key: "whatsappNumber",
+    label: "WhatsApp number (with country code)",
+    placeholder: "+8801XXXXXXXXX",
+    param: "wa",
+  },
 ];
 
 function buildHubUrl(baseUrl, values) {
@@ -49,7 +80,7 @@ export default function QRForm() {
       width: 480,
       margin: 2,
       errorCorrectionLevel: "H",
-      color: { dark: "#2A211A", light: "#F5EEE0" },
+      color: { dark: "#000000", light: "#FFFFFF" },
     }).catch(() => {});
     setHubUrl(finalUrl);
   }, [finalUrl]);
@@ -66,7 +97,7 @@ export default function QRForm() {
       width: 2000,
       margin: 3,
       errorCorrectionLevel: "H",
-      color: { dark: "#2A211A", light: "#F5EEE0" },
+      color: { dark: "#000000", light: "#FFFFFF" },
     }).then(() => {
       link.href = printCanvas.toDataURL("image/png");
       link.click();
@@ -78,9 +109,17 @@ export default function QRForm() {
       type: "svg",
       margin: 3,
       errorCorrectionLevel: "H",
-      color: { dark: "#2A211A", light: "#F5EEE0" },
+      color: { dark: "#000000", light: "#FFFFFF" },
     });
-    const blob = new Blob([svgString], { type: "image/svg+xml" });
+    // The qrcode library only writes a viewBox, no explicit width/height.
+    // Some print tools then rasterize it at a tiny native size, which is
+    // what causes the "blurry after download" problem. Force real
+    // pixel dimensions so it always opens/prints at high resolution.
+    const sizedSvg = svgString.replace(
+      "<svg ",
+      '<svg width="2000" height="2000" '
+    );
+    const blob = new Blob([sizedSvg], { type: "image/svg+xml" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `${values.name || "social-qr"}-qr.svg`;
@@ -95,11 +134,14 @@ export default function QRForm() {
         <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-accent">
           Step 1
         </p>
-        <h2 className="mb-6 font-display text-2xl font-bold">Fill in your links</h2>
+        <h2 className="mb-6 font-display text-2xl font-bold">
+          Fill in your links
+        </h2>
 
         <div className="mb-6">
           <label className="mb-1 block text-sm font-medium text-ink/70">
-            Hub domain (where /links will be hosted, e.g. after deploying to Vercel)
+            Hub domain (where /links will be hosted, e.g. after deploying to
+            Vercel)
           </label>
           <input
             type="text"
@@ -137,7 +179,9 @@ export default function QRForm() {
         <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-accent">
           Step 2
         </p>
-        <h2 className="mb-6 font-display text-2xl font-bold">Your print-ready QR</h2>
+        <h2 className="mb-6 font-display text-2xl font-bold">
+          Your print-ready QR
+        </h2>
 
         <div className="rounded-lg border-4 border-ink/10 bg-cream p-4">
           <canvas ref={canvasRef} className="h-60 w-60" />
